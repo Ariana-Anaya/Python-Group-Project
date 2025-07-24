@@ -8,7 +8,9 @@ business_routes = Blueprint('businesses', __name__)
 @business_routes.route('/', methods=['GET'])
 def get_all_businesses():
     businesses = Business.query.all()
-    return jsonify([biz.to_dict() for biz in businesses]), 200
+    print(businesses)
+    return {"businesses": [biz.to_dict() for biz in businesses]}
+    # return ([biz.to_dict() for biz in businesses]), 200
 
 # GET /api/businesses/<int:id> - get business by id
 @business_routes.route('/<int:id>', methods=['GET'])

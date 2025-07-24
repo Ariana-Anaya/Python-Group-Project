@@ -1,17 +1,16 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBusinesses } from '../../redux/businesses';
 
 const BusinessList = () => {
   const dispatch = useDispatch();
-  const businesses = useSelector(state => Object.values(state.businesses.all));
+  const businesses = useSelector(state => state.businesses.Businesses);
 
   useEffect(() => {
     dispatch(fetchBusinesses());
   }, [dispatch]);
 
-  if (!businesses.length) return <div>No businesses found.</div>;
-
+  if (businesses) {
   return (
     <div>
       <h2>All Businesses</h2>
@@ -27,7 +26,13 @@ const BusinessList = () => {
         ))}
       </ul>
     </div>
-  );
-};
+    );
+  };
+  return (
+    <div>
+      <h2>No Businesses Found...</h2>
+    </div>
+  );  
+}
 
 export default BusinessList;

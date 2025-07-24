@@ -7,25 +7,30 @@ const DELETE_BUSINESS = 'businesses/DELETE';
 
 // Action Creators
 const loadBusinesses = (businesses) => ({ type: LOAD_BUSINESSES, businesses });
-const loadOne = (business) => ({ type: LOAD_ONE, business });
+const loadOne = (businessId) => ({ type: LOAD_ONE, businessId });
 const addBusiness = (business) => ({ type: ADD_BUSINESS, business });
-const updateBusiness = (business) => ({ type: UPDATE_BUSINESS, business });
-const deleteBusiness = (id) => ({ type: DELETE_BUSINESS, id });
+const updateBusiness = (businessId) => ({ type: UPDATE_BUSINESS, businessId });
+const deleteBusiness = () => ({ type: DELETE_BUSINESS });
 
 // Thunks
 export const fetchBusinesses = () => async (dispatch) => {
   const res = await fetch('/api/businesses/');
   if (res.ok) {
     const data = await res.json();
-    dispatch(loadBusinesses(data));
+    dispatch(loadBusinesses(data.businesses));
   }
+  else if (res.status < 500) {
+    const errorMessages = await res.json();
+    return errorMessages;
+  } 
 };
 
-export const fetchBusiness = (id) => async (dispatch) => {
-  const res = await fetch(`/api/businesses/${id}`);
+export const fetchBusiness = (businessId) => async (dispatch) => {
+  const res = await fetch(`/api/businesses/${businessId}`);
   if (res.ok) {
     const data = await res.json();
     dispatch(loadOne(data));
+    return res;
   }
 };
 
@@ -63,16 +68,19 @@ export const removeBusiness = (id) => async (dispatch) => {
 };
 
 // Reducer
-const initialState = { all: {}, single: null };
+const initialState = {};
 
 export default function businessesReducer(state = initialState, action) {
   switch (action.type) {
-    case LOAD_BUSINESSES:
-      const all = {};
-      action.businesses.users?.forEach((biz) => { all[biz.id] = biz; });
-      return { ...state, all };
+    case LOAD_BUSINESSES: {
+      // const all = {};
+      const newState = {...state, Businesses: action.businesses}
+      // action.businesses.users?.forEach((biz) => { all[biz.id] = biz; });
+      // return { ...state, all };
+      return newState;
+      }
     case LOAD_ONE:
-      return { ...state, single: action.business };
+      return { ...state, ...action.businessId };
     case ADD_BUSINESS:
       return { ...state, all: { ...state.all, [action.business.id]: action.business } };
     case UPDATE_BUSINESS:

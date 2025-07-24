@@ -31,8 +31,8 @@ def login():
         # Add the user to the session, we are logged in!
         user = User.query.filter(User.email == form.data['email']).first()
         login_user(user)
-        return jsonify(user.to_dict()), 200
-    return jsonify(form.errors), 401
+        return (user.to_dict()), 200
+    return (form.errors), 401
 
 
 @auth_routes.route('/logout')
