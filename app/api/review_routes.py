@@ -111,6 +111,7 @@ def add_review_image(review_id):
     
     try:
         db.session.add(image)
+        #07/24-update
         db.session.commit()
         return jsonify(image.to_dict()), 201
     except Exception as e:
