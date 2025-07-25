@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from app.models import User, db
 from app.forms import LoginForm
 from app.forms import SignUpForm
@@ -20,7 +20,8 @@ def authenticate():
 @auth_routes.route('/login', methods=['POST'])
 def login():
     """
-    Logs a user in
+    #    /api/auth/login    
+    #    Logs a user in
     """
     form = LoginForm()
     # Get the csrf_token from the request cookie and put it into the
@@ -30,13 +31,15 @@ def login():
         # Add the user to the session, we are logged in!
         user = User.query.filter(User.email == form.data['email']).first()
         login_user(user)
-        return user.to_dict()
-    return form.errors, 401
+        return (user.to_dict()), 200
+    return (form.errors), 401
 
 
 @auth_routes.route('/logout')
 def logout():
     """
+    # {{url}}/api/auth/logout
+    # Method: GET
     Logs a user out
     """
     logout_user()
