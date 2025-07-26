@@ -4,7 +4,8 @@ import { fetchBusinesses } from '../../redux/businesses';
 
 const BusinessList = () => {
   const dispatch = useDispatch();
-  const businesses = useSelector(state => state.businesses.Businesses);
+  // const businesses = useSelector(state => state.businesses.Businesses);
+  const businesses = useSelector(state => Object.values(state.businesses.all));
 
   useEffect(() => {
     dispatch(fetchBusinesses());

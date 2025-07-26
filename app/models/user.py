@@ -1,6 +1,8 @@
 from .db import db, environment, SCHEMA, add_prefix_for_prod
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+# from app.models.db import db
+
 
 
 class User(db.Model, UserMixin):
@@ -14,7 +16,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(255), nullable=False, unique=True)
     hashed_password = db.Column(db.String(255), nullable=False)
     businesses = db.relationship("Business", back_populates="owner", cascade="all, delete-orphan")
-
+    reviews = db.relationship('Review', back_populates='user', cascade='all, delete-orphan')
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(50))
 
     @property
     def password(self):
