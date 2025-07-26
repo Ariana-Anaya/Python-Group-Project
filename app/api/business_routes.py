@@ -71,3 +71,5 @@ def delete_business(id):
     db.session.delete(biz)
     db.session.commit()
     return {'message': 'Business deleted'}, 200
+    #07/24-update
+
