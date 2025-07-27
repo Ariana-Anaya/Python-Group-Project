@@ -4,7 +4,7 @@ import SignupFormPage from '../components/SignupFormPage';
 import Layout from './Layout';
 import BusinessList from '../components/Businesses/BusinessList';
 
-// import BusinessList from '../components/BusinessList/BusinessList';
+//import BusinessList from '../components/BusinessList/BusinessList';
 
 export const router = createBrowserRouter([
   {
