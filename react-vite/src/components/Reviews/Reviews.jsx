@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchBusinessReviews, createReview, removeReview } from '../../redux/review';
+import { fetchBusinessReviews, createReview, removeReview, editReview } from '../../redux/review';
 import StarAndRating from './StarAndRating';
 
 function Reviews({ businessId }) {
@@ -12,6 +12,9 @@ function Reviews({ businessId }) {
   const [reviewText, setReviewText] = useState('');
   const [rating, setRating] = useState(0);
   const [errors, setErrors] = useState({});
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editText, setEditText] = useState('');  
+  const [editRating, setEditRating] = useState(0); 
 
   useEffect(() => {
     dispatch(fetchBusinessReviews(businessId));
@@ -25,7 +28,7 @@ function Reviews({ businessId }) {
     setErrors({});
 
     const newReview = {
-      comment: reviewText,
+      content: reviewText,
       rating: rating
     };
 
@@ -42,6 +45,25 @@ function Reviews({ businessId }) {
   const handleDelete = async (reviewId) => {
     await dispatch(removeReview(reviewId));
   };
+  const handleEditClick = (review) => {
+    setEditingReviewId(review.id);
+    setEditText(review.content);
+    setEditRating(review.rating);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    const updatedReview = {
+        content: editText,
+      rating: editRating
+    };
+    const res = await dispatch(editReview(editingReviewId, updatedReview));
+    if (!res.errors) {
+      setEditingReviewId(null);
+    } else {
+      setErrors(res.errors);
+    }
+  };
 
   return (
     <div className="reviews-container">
@@ -56,7 +78,7 @@ function Reviews({ businessId }) {
             required
           />
           <StarAndRating rating={rating} setRating={setRating} />
-          {errors.comment && <p className="error">{errors.comment}</p>}
+          {errors.content && <p className="error">{errors.content}</p>}
           {errors.rating && <p className="error">{errors.rating}</p>}
           <button type="submit">Post Review</button>
         </form>
@@ -68,10 +90,31 @@ function Reviews({ businessId }) {
         reviews.map((review) => (
           <div key={review.id} className="review-tile">
             <h4>{review.User?.username}</h4>
+                {editingReviewId === review.id ? (
+              <form onSubmit={handleEditSubmit} className="edit-review-form">
+                <textarea
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  required
+                />
+                <StarAndRating rating={editRating} setRating={setEditRating} />
+                {errors.content && <p className="error">{errors.content}</p>}
+                {errors.rating && <p className="error">{errors.rating}</p>}
+                <button type="submit">Save</button>
+                <button type="button" onClick={() => setEditingReviewId(null)}>Cancel</button>
+              </form>
+            ) : (
+              <>
             <StarAndRating rating={review.rating} disabled />
-            <p>{review.comment}</p>
-            {sessionUser?.id === review.userId && (
-              <button onClick={() => handleDelete(review.id)}>Delete</button>
+                <p>{review.content}</p>
+              </>
+            )}
+
+            {sessionUser?.id === review.userId && editingReviewId !== review.id && (
+              <>
+                <button onClick={() => handleEditClick(review)}>Edit</button>
+                <button onClick={() => handleDelete(review.id)}>Delete</button>
+              </>
             )}
           </div>
         ))
