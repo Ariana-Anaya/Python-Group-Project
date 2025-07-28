@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchUserBusinesses } from '../../redux/businesses';
+import { fetchUserBusinesses, deleteBusiness } from '../../redux/businesses';
 
 
 const ManageBusinesses = () => {
@@ -20,6 +20,9 @@ const ManageBusinesses = () => {
   return (
     <div className="business-list-container">
       <h1>{user.firstName} Businesses</h1>
+      <button onClick={() => navigate('/manage-businesses/new')}>
+          Create Business
+        </button>
       <ul className="business-cards">
         {businesses.map(biz => (
           <li className="business-card" key={biz.id} onClick={(e) => {
@@ -35,6 +38,8 @@ const ManageBusinesses = () => {
               <p className='business-rating'>Rating: rating goes here</p>
               <p className='business-reviews'>Reviews: reviews go here</p>
             </div>
+            <button onClick={() => navigate(`/manage-businesses/${biz.id}/edit`)}>Edit</button>
+            <button onClick={() => dispatch(deleteBusiness(biz.id))}>Delete</button>
           </li>
         ))}
       </ul>

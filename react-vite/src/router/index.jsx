@@ -5,6 +5,7 @@ import Layout from './Layout';
 import BusinessList from '../components/Businesses/BusinessList';
 import BusinessDetail from '../components/Businesses/BusinessDetail';
 import ManageBusinesses from '../components/ManageBusinesses/ManageBusinesses';
+import BusinessForm from '../components/Businesses/BusinessForm';
 
 
 //import BusinessList from '../components/BusinessList/BusinessList';
@@ -45,7 +46,14 @@ export const router = createBrowserRouter([
           },
         ]
       },
-  
+      {  
+        path: "manage-businesses/new",
+        element: <BusinessForm isEdit={false} />,
+      },
+      {
+        path: "manage-businesses/:id/edit",
+        element: <BusinessForm isEdit={true} />,
+    },
     ],
   },
 ]);

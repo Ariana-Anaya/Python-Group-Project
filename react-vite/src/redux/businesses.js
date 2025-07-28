@@ -8,11 +8,10 @@ const DELETE_BUSINESS = 'businesses/DELETE';
 
 // Action Creators
 const loadBusinesses = (businesses) => ({ type: LOAD_BUSINESSES, businesses });
-const loadOne = (businessId) => ({ type: LOAD_ONE, businessId });
+const loadOne = (business) => ({ type: LOAD_ONE, business });
 const loadUserBusinesses = (businesses) => ({ type: LOAD_USER_BUSINESSES, businesses });
 const addBusiness = (business) => ({ type: ADD_BUSINESS, business });
-const updateBusiness = (businessId) => ({ type: UPDATE_BUSINESS, businessId });
-const deleteBusiness = () => ({ type: DELETE_BUSINESS });
+const updateBusiness = (business) => ({ type: UPDATE_BUSINESS, business });const deleteBusinessAction = (id) => ({ type: DELETE_BUSINESS, id });
 
 // Thunks
 export const fetchBusinesses = () => async (dispatch) => {
@@ -40,7 +39,9 @@ export const fetchUserBusinesses = (ownerId) => async (dispatch) => {
 };
 
 export const fetchBusiness = (businessId) => async (dispatch) => {
-  const res = await fetch(`/api/businesses/${businessId}`);
+  const res = await fetch(`/api/businesses/${businessId}`, {
+    credentials: 'include',
+});
   if (res.ok) {
     const data = await res.json();
     dispatch(loadOne(data));
@@ -74,10 +75,10 @@ export const editBusiness = (id, business) => async (dispatch) => {
   }
 };
 
-export const removeBusiness = (id) => async (dispatch) => {
+export const deleteBusiness = (id) => async (dispatch) => {
   const res = await fetch(`/api/businesses/${id}`, { method: 'DELETE' });
   if (res.ok) {
-    dispatch(deleteBusiness(id));
+    dispatch(deleteBusinessAction(id));
   }
 };
 
@@ -92,7 +93,7 @@ export default function businessesReducer(state = initialState, action) {
       return { ...state, all };
     }
     case LOAD_ONE:
-      return { ...state, single: action.businessId };
+  return { ...state, single: action.business };
     case ADD_BUSINESS:
       return { ...state, all: { ...state.all, [action.business.id]: action.business } };
     case UPDATE_BUSINESS:
