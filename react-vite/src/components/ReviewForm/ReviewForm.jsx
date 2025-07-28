@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { createReview } from '../../redux/reviews';
+import { createReview, addReviewImage } from '../../redux/reviews';
 import './ReviewForm.css';
 
 function ReviewForm({ businessId, onClose, review = null, onSubmit = null }) {
@@ -10,6 +10,8 @@ function ReviewForm({ businessId, onClose, review = null, onSubmit = null }) {
   const [hoveredStar, setHoveredStar] = useState(0);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageUrls, setImageUrls] = useState([]);
+  const [imageInput, setImageInput] = useState('');
 
   const isEdit = !!review;
 
@@ -46,6 +48,12 @@ function ReviewForm({ businessId, onClose, review = null, onSubmit = null }) {
       if (result.errors) {
         setErrors(result.errors);
       } else {
+        // Add images if this is a new review and images were provided
+        if (!isEdit && imageUrls.length > 0) {
+          for (const imageUrl of imageUrls) {
+            await dispatch(addReviewImage(result.id, { url: imageUrl }));
+          }
+        }
         onClose();
       }
     } catch (error) {
@@ -65,6 +73,25 @@ function ReviewForm({ businessId, onClose, review = null, onSubmit = null }) {
 
   const handleStarLeave = () => {
     setHoveredStar(0);
+  };
+
+  const addImageUrl = () => {
+    if (imageInput.trim() && imageUrls.length < 10) {
+      const url = imageInput.trim();
+      if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i) || url.includes('imgur') || url.includes('cloudinary')) {
+        setImageUrls([...imageUrls, url]);
+        setImageInput('');
+        setErrors(prev => ({ ...prev, images: '' }));
+      } else {
+        setErrors(prev => ({ ...prev, images: 'Please enter a valid image URL' }));
+      }
+    } else if (imageUrls.length >= 10) {
+      setErrors(prev => ({ ...prev, images: 'Maximum 10 images allowed' }));
+    }
+  };
+
+  const removeImageUrl = (index) => {
+    setImageUrls(imageUrls.filter((_, i) => i !== index));
   };
 
   return (
@@ -109,6 +136,50 @@ function ReviewForm({ businessId, onClose, review = null, onSubmit = null }) {
             </div>
             {errors.review && <p className="error">{errors.review}</p>}
           </div>
+
+          {!isEdit && (
+            <div className="form-group">
+              <label>Add Images (Optional)</label>
+              <div className="image-input-section">
+                <input
+                  type="url"
+                  value={imageInput}
+                  onChange={(e) => setImageInput(e.target.value)}
+                  placeholder="Enter image URL (jpg, png, gif, etc.)"
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
+                />
+                <button 
+                  type="button" 
+                  onClick={addImageUrl}
+                  className="add-image-btn"
+                  disabled={imageUrls.length >= 10}
+                >
+                  Add Image
+                </button>
+              </div>
+              {errors.images && <p className="error">{errors.images}</p>}
+              
+              {imageUrls.length > 0 && (
+                <div className="image-preview-section">
+                  <p>{imageUrls.length}/10 images</p>
+                  <div className="image-preview-grid">
+                    {imageUrls.map((url, index) => (
+                      <div key={index} className="image-preview-item">
+                        <img src={url} alt={`Preview ${index + 1}`} />
+                        <button 
+                          type="button"
+                          className="remove-image-btn"
+                          onClick={() => removeImageUrl(index)}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {errors.general && <p className="error">{errors.general}</p>}
 

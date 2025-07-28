@@ -1,12 +1,16 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { createBusiness } from '../../redux/businesses';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
+import { createBusiness, editBusiness, fetchBusinessDetails } from '../../redux/businesses';
 import './BusinessForm.css';
 
 function BusinessForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { businessId } = useParams();
+  const business = useSelector(state => state.businesses.singleBusiness[businessId]);
+  
+  const isEdit = !!businessId;
   
   const [formData, setFormData] = useState({
     name: '',
@@ -22,6 +26,28 @@ function BusinessForm() {
   
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  useEffect(() => {
+    if (isEdit && businessId) {
+      dispatch(fetchBusinessDetails(businessId));
+    }
+  }, [dispatch, isEdit, businessId]);
+  
+  useEffect(() => {
+    if (isEdit && business) {
+      setFormData({
+        name: business.name || '',
+        address: business.address || '',
+        city: business.city || '',
+        state: business.state || '',
+        country: business.country || 'United States of America',
+        zipCode: business.zipCode || '',
+        category: business.category || '',
+        description: business.description || '',
+        priceRange: business.priceRange || ''
+      });
+    }
+  }, [isEdit, business]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,11 +94,17 @@ function BusinessForm() {
     setIsSubmitting(true);
     
     try {
-      const result = await dispatch(createBusiness(formData));
+      let result;
+      if (isEdit) {
+        result = await dispatch(editBusiness(businessId, formData));
+      } else {
+        result = await dispatch(createBusiness(formData));
+      }
+      
       if (result && !result.errors) {
         navigate(`/businesses/${result.id}`);
       } else {
-        setErrors(result.errors || { general: 'Failed to create business' });
+        setErrors(result.errors || { general: `Failed to ${isEdit ? 'update' : 'create'} business` });
       }
     } catch (error) {
       setErrors({ general: 'An unexpected error occurred' });
@@ -84,8 +116,8 @@ function BusinessForm() {
   return (
     <div className="business-form-container">
       <div className="business-form-card">
-        <h1>Add Your Business</h1>
-        <p className="form-subtitle">Share your business with the community</p>
+        <h1>{isEdit ? 'Edit Your Business' : 'Add Your Business'}</h1>
+        <p className="form-subtitle">{isEdit ? 'Update your business information' : 'Share your business with the community'}</p>
         
         <form onSubmit={handleSubmit} className="business-form">
           {errors.general && (
@@ -241,7 +273,7 @@ function BusinessForm() {
               disabled={isSubmitting}
               className="btn-primary"
             >
-              {isSubmitting ? 'Creating...' : 'Create Business'}
+              {isSubmitting ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update Business' : 'Create Business')}
             </button>
           </div>
         </form>

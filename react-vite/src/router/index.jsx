@@ -24,6 +24,10 @@ export const router = createBrowserRouter([
         element: <BusinessForm />,
       },
       {
+        path: "/businesses/:businessId/edit",
+        element: <BusinessForm />,
+      },
+      {
         path: "/businesses/manage",
         element: <BusinessManagement />,
       },
