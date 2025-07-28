@@ -1,10 +1,11 @@
 import { createBrowserRouter } from 'react-router-dom';
 import LoginFormPage from '../components/LoginFormPage';
 import SignupFormPage from '../components/SignupFormPage';
+import BusinessList from '../components/BusinessList';
+import BusinessDetails from '../components/BusinessDetails';
+import BusinessForm from '../components/BusinessForm';
+import BusinessManagement from '../components/BusinessManagement';
 import Layout from './Layout';
-import BusinessList from '../components/Businesses/BusinessList';
-
-//import BusinessList from '../components/BusinessList/BusinessList';
 
 export const router = createBrowserRouter([
   {
@@ -12,7 +13,19 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <BusinessList />, 
+        element: <BusinessList />,
+      },
+      {
+        path: "/businesses/:businessId",
+        element: <BusinessDetails />,
+      },
+      {
+        path: "/businesses/new",
+        element: <BusinessForm />,
+      },
+      {
+        path: "/businesses/manage",
+        element: <BusinessManagement />,
       },
       {
         path: "login",
@@ -22,10 +35,6 @@ export const router = createBrowserRouter([
         path: "signup",
         element: <SignupFormPage />,
       },
-      {
-        path: "businesses",
-        element: <BusinessList />,
-      }
     ],
   },
 ]);
