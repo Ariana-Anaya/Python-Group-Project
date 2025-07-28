@@ -1,154 +1,94 @@
-# seeds/businesses.py
+from app.models import db, Business, BusinessImage, environment, SCHEMA
+from sqlalchemy.sql import text
 
-from app.models import db, Business
-from app.models.db import environment, SCHEMA
 
 def seed_businesses():
-    sample_businesses = [
-        # the two originals
-        {
-            "owner_id": 1,
-            "name": "Sample Cafe",
-            "description": "A cozy place for coffee and snacks.",
-            "category": "Cafe",
-            "address": "123 Main St",
-            "city": "Sampletown",
-            "state": "CA",
-            "price": 2
-        },
-        {
-            "owner_id": 2,
-            "name": "Tasty Pizza",
-            "description": "Best pizza in town.",
-            "category": "Restaurant",
-            "address": "456 Elm St",
-            "city": "Pizzaville",
-            "state": "NY",
-            "price": 3
-        },
-        # your ten SF spots
-        {
-            "owner_id": 3,
-            "name": "Sunrise Diner",
-            "description": "Classic breakfasts all day.",
-            "category": "Diner",
-            "address": "101 Morning Rd",
-            "city": "San Francisco",
-            "state": "CA",
-            "price": 1
-        },
-        {
-            "owner_id": 4,
-            "name": "Bayview Burgers",
-            "description": "All-American burgers and fries.",
-            "category": "Restaurant",
-            "address": "202 Bay St",
-            "city": "San Francisco",
-            "state": "CA",
-            "price": 2
-        },
-        {
-            "owner_id": 5,
-            "name": "Golden Gate Tacos",
-            "description": "Authentic tacos & salsas.",
-            "category": "Restaurant",
-            "address": "303 Golden Gate Ave",
-            "city": "San Francisco",
-            "state": "CA",
-            "price": 1
-        },
-        {
-            "owner_id": 6,
-            "name": "Pier 39 Seafood",
-            "description": "Fresh seafood with bay views.",
-            "category": "Restaurant",
-            "address": "400 Pier 39",
-            "city": "San Francisco",
-            "state": "CA",
-            "price": 3
-        },
-        {
-            "owner_id": 7,
-            "name": "Mission Pizza",
-            "description": "Wood-fired Neapolitan pizza.",
-            "category": "Pizza",
-            "address": "500 Mission St",
-            "city": "San Francisco",
-            "state": "CA",
-            "price": 2
-        },
-        {
-            "owner_id": 8,
-            "name": "Chinatown Express",
-            "description": "Quick Asian fusion bowls.",
-            "category": "Cafe",
-            "address": "600 Grant Ave",
-            "city": "San Francisco",
-            "state": "CA",
-            "price": 1
-        },
-        {
-            "owner_id": 9,
-            "name": "Haight Hotdogs",
-            "description": "Gourmet hotdogs & creative toppings.",
-            "category": "Restaurant",
-            "address": "700 Haight St",
-            "city": "San Francisco",
-            "state": "CA",
-            "price": 1
-        },
-        {
-            "owner_id": 10,
-            "name": "North Beach Pasta",
-            "description": "House-made pasta dishes.",
-            "category": "Italian",
-            "address": "800 Columbus Ave",
-            "city": "San Francisco",
-            "state": "CA",
-            "price": 3
-        },
-        {
-            "owner_id": 11,
-            "name": "SoMa Sushi",
-            "description": "Fresh sushi rolls & sashimi.",
-            "category": "Sushi Bar",
-            "address": "900 3rd St",
-            "city": "San Francisco",
-            "state": "CA",
-            "price": 4
-        },
-        {
-            "owner_id": 12,
-            "name": "Sunset Tacos",
-            "description": "California-style fish tacos.",
-            "category": "Restaurant",
-            "address": "1000 Irving St",
-            "city": "San Francisco",
-            "state": "CA",
-            "price": 2
-        }
-    ]
+    business1 = Business(
+        owner_id=1,
+        name='Coder Cafe',
+        address='123 Disney Lane',
+        city='Los Angeles',
+        state='California',
+        country='United States of America',
+        zip_code='90210',
+        category='Cafe',
+        description='Best coffee in town',
+        price_range='$$'
+    )
+    
+    business2 = Business(
+        owner_id=2,
+        name='Tech Burger',
+        address='456 Silicon Valley Rd',
+        city='San Francisco',
+        state='California',
+        country='United States of America',
+        zip_code='94102',
+        category='Restaurant',
+        description='Gourmet burgers for developers',
+        price_range='$$$'
+    )
+    
+    business3 = Business(
+        owner_id=3,
+        name='Pizza & Code',
+        address='789 Startup St',
+        city='Austin',
+        state='Texas',
+        country='United States of America',
+        zip_code='78701',
+        category='Pizza',
+        description='Late night coding fuel',
+        price_range='$'
+    )
 
-    for biz in sample_businesses:
-        exists = Business.query.filter_by(
-            name=biz["name"],
-            address=biz["address"],
-            city=biz["city"],
-            state=biz["state"]
-        ).first()
-        if not exists:
-            db.session.add(Business(**biz))
-
+    db.session.add(business1)
+    db.session.add(business2)
+    db.session.add(business3)
     db.session.commit()
+
+    # Add some business images with real placeholder URLs
+    image1 = BusinessImage(
+        business_id=1,
+        user_id=1,  # Business owner uploaded this
+        url='https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=300&fit=crop&crop=center',
+        preview=True
+    )
+    
+    image2 = BusinessImage(
+        business_id=1,
+        user_id=2,  # Different user uploaded this
+        url='https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=300&fit=crop&crop=center',
+        preview=False
+    )
+    
+    image3 = BusinessImage(
+        business_id=2,
+        user_id=2,  # Business owner uploaded this
+        url='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop&crop=center',
+        preview=True
+    )
+    
+    image4 = BusinessImage(
+        business_id=3,
+        user_id=3,  # Business owner uploaded this
+        url='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop&crop=center',
+        preview=True
+    )
+
+    db.session.add(image1)
+    db.session.add(image2)
+    db.session.add(image3)
+    db.session.add(image4)
+    db.session.commit()
+
 
 def undo_businesses():
     if environment == "production":
-        db.session.execute(
-            f'TRUNCATE TABLE {SCHEMA}.businesses RESTART IDENTITY CASCADE;'
-        )
+        db.session.execute(f"TRUNCATE table {SCHEMA}.business_images RESTART IDENTITY CASCADE;")
+        db.session.execute(f"TRUNCATE table {SCHEMA}.businesses RESTART IDENTITY CASCADE;")
     else:
-        db.session.execute('DELETE FROM businesses;')
-        db.session.execute(
-            'DELETE FROM sqlite_sequence WHERE name="businesses";'
-        )
+        db.session.execute(text("DELETE FROM business_images"))
+        db.session.execute(text("DELETE FROM businesses"))
+        
     db.session.commit()

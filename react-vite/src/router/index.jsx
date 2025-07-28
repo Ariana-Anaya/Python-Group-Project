@@ -1,6 +1,10 @@
 import { createBrowserRouter, Outlet } from 'react-router-dom';
 import LoginFormPage from '../components/LoginFormPage';
 import SignupFormPage from '../components/SignupFormPage';
+import BusinessList from '../components/BusinessList';
+import BusinessDetails from '../components/BusinessDetails';
+import BusinessForm from '../components/BusinessForm';
+import BusinessManagement from '../components/BusinessManagement';
 import Layout from './Layout';
 import BusinessList from '../components/Businesses/BusinessList';
 import BusinessDetail from '../components/Businesses/BusinessDetail';
@@ -16,7 +20,23 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <BusinessList />, 
+        element: <BusinessList />,
+      },
+      {
+        path: "/businesses/:businessId",
+        element: <BusinessDetails />,
+      },
+      {
+        path: "/businesses/new",
+        element: <BusinessForm />,
+      },
+      {
+        path: "/businesses/:businessId/edit",
+        element: <BusinessForm />,
+      },
+      {
+        path: "/businesses/manage",
+        element: <BusinessManagement />,
       },
       {
         path: "login",
@@ -27,33 +47,9 @@ export const router = createBrowserRouter([
         element: <SignupFormPage />,
       },
       {
-        path: "businesses/:id",
-        element: <Outlet />,
-        children: [
-          {
-            index: true,
-            element: <BusinessDetail />,
-          },
-        ]
-      },
-      {
-        path: "manage-businesses/:id",
-        element: <Outlet />,
-        children: [
-          {
-            index: true,
-            element: <ManageBusinesses />,
-          },
-        ]
-      },
-      {  
-        path: "manage-businesses/new",
-        element: <BusinessForm isEdit={false} />,
-      },
-      {
-        path: "manage-businesses/:id/edit",
-        element: <BusinessForm isEdit={true} />,
-    },
+        path: "businesses",
+        element: <BusinessList />,
+      }
     ],
   },
 ]);

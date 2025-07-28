@@ -1,6 +1,8 @@
-from flask import Blueprint
-from flask_login import login_required
-from app.models import User
+from flask import Blueprint, jsonify, request
+from flask_login import login_required, current_user, login_user
+from app.models import User, Review, db
+from app.forms import SignUpForm
+
 from app.models import Business
 user_routes = Blueprint('users', __name__)
 
@@ -13,6 +15,7 @@ def users():
     """
     users = User.query.all()
     return {'users': [user.to_dict() for user in users]}
+
 
 @user_routes.route('/<int:id>')
 @login_required
@@ -91,12 +94,12 @@ def owner_businesses(id):
 #     if not user:
 #         return jsonify({"message": "User couldn't be found"}), 404
     
-#     # Only allow users to see their own reviews (authentication required)
-#     if user_id != current_user.id:
-#         return jsonify({"message": "Forbidden"}), 403
+    # Only allow users to see their own reviews (authentication required)
+    if user_id != current_user.id:
+        return jsonify({"message": "Forbidden"}), 403
     
-#     reviews = Review.query.filter(Review.user_id == user_id).all()
+    reviews = Review.query.filter(Review.user_id == user_id).all()
     
-#     return jsonify({
-#         "Reviews": [review.to_dict_with_user_business() for review in reviews]
-#     })
+    return jsonify({
+        "Reviews": [review.to_dict_with_user_business() for review in reviews]
+    })

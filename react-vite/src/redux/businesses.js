@@ -1,10 +1,12 @@
 // Action Types
-const LOAD_BUSINESSES = 'businesses/LOAD';
-const LOAD_ONE = 'businesses/LOAD_ONE';
+const LOAD_BUSINESSES = 'businesses/LOAD_BUSINESSES';
+const LOAD_BUSINESS_DETAILS = 'businesses/LOAD_BUSINESS_DETAILS';
+const LOAD_CURRENT_USER_BUSINESSES = 'businesses/LOAD_CURRENT_USER_BUSINESSES';
 const LOAD_USER_BUSINESSES = 'businesses/LOAD_USER';
-const ADD_BUSINESS = 'businesses/ADD';
-const UPDATE_BUSINESS = 'businesses/UPDATE';
-const DELETE_BUSINESS = 'businesses/DELETE';
+const ADD_BUSINESS = 'businesses/ADD_BUSINESS';
+const UPDATE_BUSINESS = 'businesses/UPDATE_BUSINESS';
+const DELETE_BUSINESS = 'businesses/DELETE_BUSINESS';
+const CLEAR_BUSINESSES = 'businesses/CLEAR_BUSINESSES';
 
 // Action Creators
 const loadBusinesses = (businesses) => ({ type: LOAD_BUSINESSES, businesses });
@@ -49,29 +51,41 @@ export const fetchBusiness = (businessId) => async (dispatch) => {
   }
 };
 
-export const createBusiness = (business) => async (dispatch) => {
-  const res = await fetch('/api/businesses/', {
+export const createBusiness = (businessData) => async (dispatch) => {
+  const response = await fetch('/api/businesses', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(business),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(businessData)
   });
-  if (res.ok) {
-    const data = await res.json();
-    dispatch(addBusiness(data));
-    return data;
+  
+  if (response.ok) {
+    const business = await response.json();
+    dispatch(addBusiness(business));
+    return business;
+  } else {
+    const errors = await response.json();
+    return { errors };
   }
 };
 
-export const editBusiness = (id, business) => async (dispatch) => {
-  const res = await fetch(`/api/businesses/${id}`, {
+export const editBusiness = (businessId, businessData) => async (dispatch) => {
+  const response = await fetch(`/api/businesses/${businessId}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(business),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(businessData)
   });
-  if (res.ok) {
-    const data = await res.json();
-    dispatch(updateBusiness(data));
-    return data;
+  
+  if (response.ok) {
+    const business = await response.json();
+    dispatch(updateBusiness(business));
+    return business;
+  } else {
+    const errors = await response.json();
+    return { errors };
   }
 };
 
@@ -83,27 +97,74 @@ export const deleteBusiness = (id) => async (dispatch) => {
 };
 
 // Reducer
-const initialState = { all: {} };
-
-export default function businessesReducer(state = initialState, action) {
+const businessesReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOAD_BUSINESSES: {
-      const all = {};
-      action.businesses.forEach((biz) => { all[biz.id] = biz; });
-      return { ...state, all };
+      const allBusinesses = {};
+      action.businesses.forEach(business => {
+        allBusinesses[business.id] = business;
+      });
+      return {
+        ...state,
+        allBusinesses,
+        page: action.page,
+        size: action.size
+      };
     }
     case LOAD_ONE:
   return { ...state, single: action.business };
     case ADD_BUSINESS:
-      return { ...state, all: { ...state.all, [action.business.id]: action.business } };
+      return {
+        ...state,
+        allBusinesses: {
+          ...state.allBusinesses,
+          [action.business.id]: action.business
+        },
+        userBusinesses: {
+          ...state.userBusinesses,
+          [action.business.id]: action.business
+        }
+      };
+      
     case UPDATE_BUSINESS:
-      return { ...state, all: { ...state.all, [action.business.id]: action.business } };
+      return {
+        ...state,
+        allBusinesses: {
+          ...state.allBusinesses,
+          [action.business.id]: action.business
+        },
+        userBusinesses: {
+          ...state.userBusinesses,
+          [action.business.id]: action.business
+        },
+        singleBusiness: {
+          [action.business.id]: action.business
+        }
+      };
+      
     case DELETE_BUSINESS: {
-      const newAll = { ...state.all };
-      delete newAll[action.id];
-      return { ...state, all: newAll };
+      const newAllBusinesses = { ...state.allBusinesses };
+      const newUserBusinesses = { ...state.userBusinesses };
+      const newSingleBusiness = { ...state.singleBusiness };
+      
+      delete newAllBusinesses[action.businessId];
+      delete newUserBusinesses[action.businessId];
+      delete newSingleBusiness[action.businessId];
+      
+      return {
+        ...state,
+        allBusinesses: newAllBusinesses,
+        userBusinesses: newUserBusinesses,
+        singleBusiness: newSingleBusiness
+      };
     }
+      
+    case CLEAR_BUSINESSES:
+      return initialState;
+      
     default:
       return state;
   }
-}
+};
+
+export default businessesReducer;

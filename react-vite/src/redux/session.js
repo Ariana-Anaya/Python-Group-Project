@@ -11,7 +11,7 @@ const removeUser = () => ({
 });
 
 export const thunkAuthenticate = () => async (dispatch) => {
-  const response = await fetch("/api/auth/", {
+  const response = await fetch("/api/session/", {
     credentials: "include",
   });
   if (response.ok) {
@@ -19,12 +19,12 @@ export const thunkAuthenticate = () => async (dispatch) => {
     if (data.errors) {
       return;
     }
-    dispatch(setUser(data));
+    dispatch(setUser(data.user));
   }
 };
 
 export const thunkLogin = (credentials) => async dispatch => {
-  const response = await fetch("/api/auth/login", {
+  const response = await fetch("/api/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
@@ -33,7 +33,7 @@ export const thunkLogin = (credentials) => async dispatch => {
 
   if(response.ok) {
     const data = await response.json();
-    dispatch(setUser(data));
+    dispatch(setUser(data.user));
   } else if (response.status < 500) {
     const errorMessages = await response.json();
     return errorMessages
@@ -43,7 +43,7 @@ export const thunkLogin = (credentials) => async dispatch => {
 };
 
 export const thunkSignup = (user) => async (dispatch) => {
-  const response = await fetch("/api/auth/users", {
+  const response = await fetch("/api/users", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(user),
@@ -52,7 +52,7 @@ export const thunkSignup = (user) => async (dispatch) => {
 
   if(response.ok) {
     const data = await response.json();
-    dispatch(setUser(data));
+    dispatch(setUser(data.user));
   } else if (response.status < 500) {
     const errorMessages = await response.json();
     return errorMessages
@@ -62,7 +62,7 @@ export const thunkSignup = (user) => async (dispatch) => {
 };
 
 export const thunkLogout = () => async (dispatch) => {
-  await fetch("/api/auth/logout", {
+  await fetch("/api/session", {
     method: "DELETE",
     credentials: "include",
   });
