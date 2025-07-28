@@ -14,6 +14,8 @@ class Review(db.Model):
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    business_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod("businesses.id")), nullable=False)
+    
 
     user = db.relationship("User", back_populates="reviews")
     #business = db.relationship("Business", back_populates="reviews")

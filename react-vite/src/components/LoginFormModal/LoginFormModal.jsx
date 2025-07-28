@@ -23,6 +23,7 @@ function LoginFormModal() {
 
     if (serverResponse) {
       setErrors(serverResponse);
+      console.log("Login errors:", serverResponse);
     } else {
       closeModal();
     }

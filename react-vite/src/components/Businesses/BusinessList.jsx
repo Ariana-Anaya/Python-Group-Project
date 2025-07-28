@@ -28,7 +28,7 @@ const BusinessList = () => {
       </ul>
     </div>
     );
-  };
+  }
   return (
     <div>
       <h2>No Businesses Found...</h2>

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from app.models import User, db
 from app.forms import LoginForm
 from app.forms import SignUpForm
@@ -7,17 +7,17 @@ from flask_login import current_user, login_user, logout_user, login_required
 auth_routes = Blueprint('auth', __name__)
 
 
-@auth_routes.route('/session')
+@auth_routes.route('/')
 def authenticate():
     """
     Get the Current User - Returns the information about the current user that is logged in.
     """
     if current_user.is_authenticated:
-        return {'user': current_user.to_dict()}
-    return {'user': None}
+        return current_user.to_dict()
+    return {"errors": {"message":"Unauthorized"}}, 401
 
 
-@auth_routes.route('/session', methods=['POST'])
+@auth_routes.route('/login', methods=['POST'])
 def login():
     """
     #    /api/auth/login    
@@ -30,16 +30,16 @@ def login():
     if form.validate_on_submit():
         # Add the user to the session, we are logged in!
         user = User.query.filter(User.email == form.data['email']).first()
+        print(f"Logging in user: {user}")
         login_user(user)
-        return (user.to_dict()), 200
+        return user.to_dict(), 200
     return (form.errors), 401
 
 
-@auth_routes.route('/session', methods=['DELETE'])
+@auth_routes.route('/logout')
 def logout():
     """
     # {{url}}/api/auth/logout
-    # Method: GET
     Logs a user out
     """
     logout_user()

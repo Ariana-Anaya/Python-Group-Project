@@ -10,7 +10,7 @@ from .api.auth_routes import auth_routes
 from .api.business_routes import business_routes
 from .seeds import seed_commands
 from .config import Config
-from app.models import Business
+# from app.models import Business
 
 app = Flask(__name__, static_folder='../react-vite/dist', static_url_path='/')
 
@@ -35,7 +35,7 @@ db.init_app(app)
 Migrate(app, db)
 
 # Application Security
-CORS(app, supports_credentials=True)
+CORS(app)
 
 
 # Since we are deploying with Docker and Flask,
