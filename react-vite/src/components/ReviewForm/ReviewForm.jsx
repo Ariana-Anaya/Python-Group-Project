@@ -78,12 +78,42 @@ function ReviewForm({ businessId, onClose, review = null, onSubmit = null }) {
   const addImageUrl = () => {
     if (imageInput.trim() && imageUrls.length < 10) {
       const url = imageInput.trim();
-      if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i) || url.includes('imgur') || url.includes('cloudinary')) {
-        setImageUrls([...imageUrls, url]);
-        setImageInput('');
-        setErrors(prev => ({ ...prev, images: '' }));
-      } else {
-        setErrors(prev => ({ ...prev, images: 'Please enter a valid image URL' }));
+      
+      // Basic URL validation
+      try {
+        const urlObj = new URL(url);
+        
+        // Check if it's a valid HTTP/HTTPS URL
+        if (!['http:', 'https:'].includes(urlObj.protocol)) {
+          setErrors(prev => ({ ...prev, images: 'Please enter a valid HTTP or HTTPS URL' }));
+          return;
+        }
+        
+        // Very permissive validation - just check it's a URL and has some indication it might be an image
+        const isLikelyImageUrl = 
+          // Direct image file extensions
+          url.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg|tiff|ico)(\?.*)?$/i) ||
+          // Common image hosting domains
+          url.match(/\b(imgur|cloudinary|unsplash|pexels|pixabay|freepik|shutterstock|getty|flickr|pinterest|instagram|facebook|twitter|googleapis|amazonaws|azure|github|discord|dropbox|box\.com|onedrive|google|apple|microsoft)\b/i) ||
+          // URLs with image-related keywords
+          url.match(/\b(image|img|photo|pic|picture|avatar|thumb|thumbnail|gallery|media)\b/i) ||
+          // Query parameters that suggest images
+          url.match(/[?&](w=|h=|width=|height=|size=|format=|quality=)/i) ||
+          // Path segments that suggest images
+          url.match(/\/(image|img|photo|pic|picture|avatar|thumb|thumbnail|gallery|media|upload|file|asset)\//i);
+          
+        if (isLikelyImageUrl) {
+          setImageUrls([...imageUrls, url]);
+          setImageInput('');
+          setErrors(prev => ({ ...prev, images: '' }));
+        } else {
+          // More permissive - just warn but still allow
+          setImageUrls([...imageUrls, url]);
+          setImageInput('');
+          setErrors(prev => ({ ...prev, images: '' }));
+        }
+      } catch (error) {
+        setErrors(prev => ({ ...prev, images: 'Please enter a valid URL starting with http:// or https://' }));
       }
     } else if (imageUrls.length >= 10) {
       setErrors(prev => ({ ...prev, images: 'Maximum 10 images allowed' }));
@@ -145,7 +175,7 @@ function ReviewForm({ businessId, onClose, review = null, onSubmit = null }) {
                   type="url"
                   value={imageInput}
                   onChange={(e) => setImageInput(e.target.value)}
-                  placeholder="Enter image URL (jpg, png, gif, etc.)"
+                  placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
                 />
                 <button 

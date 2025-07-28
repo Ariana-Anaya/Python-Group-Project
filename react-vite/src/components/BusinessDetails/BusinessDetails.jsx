@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { fetchBusinessDetails, addBusinessImage, deleteBusinessImage } from '../../redux/businesses';
-import { fetchBusinessReviews } from '../../redux/reviews';
+import { fetchBusinessReviews, editReview, removeReview } from '../../redux/reviews';
 import ReviewForm from '../ReviewForm';
 import ImageModal from '../ImageModal';
 import './BusinessDetails.css';
@@ -15,6 +15,7 @@ function BusinessDetails() {
   const [showAddImageForm, setShowAddImageForm] = useState(false);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [imageError, setImageError] = useState('');
+  const [editingReview, setEditingReview] = useState(null);
 
   const business = useSelector(state => state.businesses.singleBusiness[businessId]);
   const reviews = useSelector(state => 
@@ -80,6 +81,52 @@ function BusinessDetails() {
     } catch (error) {
       alert('An error occurred while deleting the image');
     }
+  };
+
+  const handleEditReview = (review) => {
+    setEditingReview(review);
+    setShowReviewForm(true);
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!window.confirm('Are you sure you want to delete this review?')) {
+      return;
+    }
+
+    try {
+      const result = await dispatch(removeReview(reviewId));
+      if (result && result.message) {
+        // Refresh business details and reviews to show updated list
+        dispatch(fetchBusinessDetails(businessId));
+        dispatch(fetchBusinessReviews(businessId));
+      } else {
+        alert('Failed to delete review');
+      }
+    } catch (error) {
+      alert('An error occurred while deleting the review');
+    }
+  };
+
+  const handleEditSubmit = async (reviewData) => {
+    try {
+      const result = await dispatch(editReview(editingReview.id, reviewData));
+      if (result && !result.errors) {
+        setEditingReview(null);
+        // Refresh business details and reviews to show updated data
+        dispatch(fetchBusinessDetails(businessId));
+        dispatch(fetchBusinessReviews(businessId));
+        return result;
+      } else {
+        return { errors: result.errors || { general: 'Failed to update review' } };
+      }
+    } catch (error) {
+      return { errors: { general: 'An unexpected error occurred' } };
+    }
+  };
+
+  const handleCloseReviewForm = () => {
+    setShowReviewForm(false);
+    setEditingReview(null);
   };
 
   return (
@@ -215,7 +262,9 @@ function BusinessDetails() {
         {showReviewForm && (
           <ReviewForm 
             businessId={businessId}
-            onClose={() => setShowReviewForm(false)}
+            onClose={handleCloseReviewForm}
+            review={editingReview}
+            onSubmit={editingReview ? handleEditSubmit : null}
           />
         )}
 
@@ -257,8 +306,18 @@ function BusinessDetails() {
                 
                 {user && review.userId === user.id && (
                   <div className="review-actions">
-                    <button className="edit-review-btn">Edit</button>
-                    <button className="delete-review-btn">Delete</button>
+                    <button 
+                      className="edit-review-btn"
+                      onClick={() => handleEditReview(review)}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      className="delete-review-btn"
+                      onClick={() => handleDeleteReview(review.id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 )}
               </div>
