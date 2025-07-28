@@ -22,7 +22,7 @@ def seed_users():
         email='bobbie@aa.io', 
         hashed_password=generate_password_hash('password'),
         first_name='Bobbie',
-        last_name='Hill'
+        last_name='Brown'
     )
 
     db.session.add_all([demo, marnie, bobbie])
