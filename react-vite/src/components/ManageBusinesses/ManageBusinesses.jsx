@@ -1,34 +1,29 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchBusinesses } from '../../redux/businesses';
-import './BusinessList.css';
 import { useNavigate } from 'react-router-dom';
+import { fetchUserBusinesses } from '../../redux/businesses';
 
 
-const BusinessList = () => {
+const ManageBusinesses = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // const businesses = useSelector(state => state.businesses.Businesses);
   const businesses = useSelector(state => Object.values(state.businesses.all));
   const user = useSelector(state => state.session.user);
-  const handleManageBusinesses = () => {
-    navigate(`/manage-businesses/${user.id}`);
-  };
  
   useEffect(() => {
-    dispatch(fetchBusinesses());
-  }, [dispatch]);
+    if (user) {
+      dispatch(fetchUserBusinesses(user.id));
+    }
+  }, [dispatch, user.id]);
 
-  if (businesses) {
+  if (businesses && user) {
   return (
     <div className="business-list-container">
-      <h1>All Businesses</h1>
-        {user && <p onClick={handleManageBusinesses}>Manage Businesses</p>}
+      <h1>{user.firstName} Businesses</h1>
       <ul className="business-cards">
         {businesses.map(biz => (
           <li className="business-card" key={biz.id} onClick={(e) => {
             e.stopPropagation();
-            // Handle click event, e.g., navigate to business details
             navigate(`/businesses/${biz.id}`)
           }}>
             <div className="business-info">
@@ -53,4 +48,4 @@ const BusinessList = () => {
   );  
 }
 
-export default BusinessList;
+export default ManageBusinesses;

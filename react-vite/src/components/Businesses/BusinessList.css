@@ -5,6 +5,19 @@
   min-height: calc(100vh - 70px);
 }
 
+.business-list-container h2 {
+  
+}
+
+.business-list-container ul {
+  
+}
+
+.business-list-container ul li {
+  
+}
+
+
 .filters-section {
   background: white;
   padding: 25px;
@@ -64,13 +77,13 @@
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
 }
 
-.businesses-section h1 {
+/* .business-card h3 {
   color: #333;
   margin-bottom: 30px;
   font-size: 32px;
   font-weight: 700;
   text-align: center;
-}
+} */
 
 .business-cards {
   display: grid;
