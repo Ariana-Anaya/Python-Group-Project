@@ -50,8 +50,27 @@ function ReviewForm({ businessId, onClose, review = null, onSubmit = null }) {
       } else {
         // Add images if this is a new review and images were provided
         if (!isEdit && imageUrls.length > 0) {
+          let imageErrors = [];
+          let successCount = 0;
+          
           for (const imageUrl of imageUrls) {
-            await dispatch(addReviewImage(result.id, { url: imageUrl }));
+            try {
+              const imageResult = await dispatch(addReviewImage(result.id, { url: imageUrl }));
+              if (imageResult && imageResult.errors) {
+                imageErrors.push(`Failed to add image: ${imageUrl}`);
+                console.error('Image upload error:', imageResult.errors);
+              } else if (imageResult && imageResult.url) {
+                successCount++;
+              }
+            } catch (error) {
+              imageErrors.push(`Error adding image: ${imageUrl}`);
+              console.error('Image upload error:', error);
+            }
+          }
+          
+          console.log(`Successfully uploaded ${successCount} out of ${imageUrls.length} images`);
+          if (imageErrors.length > 0) {
+            console.warn('Some images failed to upload:', imageErrors);
           }
         }
         onClose();

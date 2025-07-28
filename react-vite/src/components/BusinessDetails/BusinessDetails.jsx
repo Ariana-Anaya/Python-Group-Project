@@ -127,6 +127,9 @@ function BusinessDetails() {
   const handleCloseReviewForm = () => {
     setShowReviewForm(false);
     setEditingReview(null);
+    // Refresh business details and reviews to show any new data (including images)
+    dispatch(fetchBusinessDetails(businessId));
+    dispatch(fetchBusinessReviews(businessId));
   };
 
   return (
